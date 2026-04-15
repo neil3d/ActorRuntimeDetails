@@ -47,11 +47,9 @@ public class ActorRuntimeDetails : ModuleRules
 				"EditorStyle",
 				"Kismet",
 				"BlueprintGraph",
-				"GraphEditor",
-#if UE_4_24_OR_LATER
-                "ToolMenus",
-#else
-#endif
+			"GraphEditor",
+				"ToolMenus",
+				"EditorFramework",
             }
 			);
 		

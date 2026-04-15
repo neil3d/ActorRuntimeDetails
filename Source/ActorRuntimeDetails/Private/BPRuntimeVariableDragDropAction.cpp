@@ -5,7 +5,7 @@
 #include "Layout/WidgetPath.h"
 #include "Framework/Application/MenuStack.h"
 #include "Framework/Application/SlateApplication.h"
-#include "EditorStyleSet.h"
+#include "Styling/AppStyle.h"
 #include "EdGraphSchema_K2.h"
 #include "EdGraphSchema_K2_Actions.h"
 #include "K2Node_Variable.h"
@@ -39,7 +39,7 @@ UBlueprint* FKismetRuntimeVariableDragDropAction::GetSourceBlueprint() const
 	return UBlueprint::GetBlueprintFromClass(VariableSourceClass);
 }
 
-void FKismetRuntimeVariableDragDropAction::GetLinksThatWillBreak(	UEdGraphNode* Node, UProperty* NewVariableProperty, 
+void FKismetRuntimeVariableDragDropAction::GetLinksThatWillBreak(	UEdGraphNode* Node, FProperty* NewVariableProperty, 
 						   TArray<class UEdGraphPin*>& OutBroken)
 {
 	if(UK2Node_Variable* VarNodeUnderCursor = Cast<UK2Node_Variable>(Node))
@@ -65,7 +65,7 @@ void FKismetRuntimeVariableDragDropAction::GetLinksThatWillBreak(	UEdGraphNode* 
 
 void FKismetRuntimeVariableDragDropAction::HoverTargetChanged()
 {
-	UProperty* VariableProperty = GetVariableProperty();
+	FProperty* VariableProperty = GetVariableProperty();
 	if (VariableProperty == nullptr)
 	{
 		return;
@@ -233,7 +233,7 @@ FReply FKismetRuntimeVariableDragDropAction::DroppedOnPin(FVector2D ScreenPositi
 			{
 				const bool bIsExecPin = Schema->IsExecPin(*TargetPin);
 
-				UProperty* VariableProperty = GetVariableProperty();
+				FProperty* VariableProperty = GetVariableProperty();
 
 				if (CanVariableBeDropped(VariableProperty, *TargetPin->GetOwningNode()->GetGraph()))
 				{
@@ -274,7 +274,7 @@ FReply FKismetRuntimeVariableDragDropAction::DroppedOnNode(FVector2D ScreenPosit
 	{
 		const FScopedTransaction Transaction( LOCTEXT("ReplacePinVariable", "Replace Pin Variable") );
 
-		UProperty* VariableProperty = GetVariableProperty();
+		FProperty* VariableProperty = GetVariableProperty();
 
 		if(CanVariableBeDropped(VariableProperty, *TargetNode->GetGraph()))
 		{
@@ -290,7 +290,7 @@ FReply FKismetRuntimeVariableDragDropAction::DroppedOnNode(FVector2D ScreenPosit
 			DropOnBlueprint->Modify();
 			TargetNode->Modify();
 
-			if (Pin != NULL)
+			if (Pin != nullptr)
 			{
 				Pin->Modify();
 			}
@@ -298,7 +298,7 @@ FReply FKismetRuntimeVariableDragDropAction::DroppedOnNode(FVector2D ScreenPosit
 			UEdGraphSchema_K2::ConfigureVarNode(TargetNode, VariableName, VariableSource.Get(), DropOnBlueprint);
 
 
-			if ((Pin == NULL) || (Pin->LinkedTo.Num() == BadLinks.Num()) || (Schema == NULL))
+			if ((Pin == nullptr) || (Pin->LinkedTo.Num() == BadLinks.Num()) || (Schema == nullptr))
 			{
 				TargetNode->GetSchema()->ReconstructNode(*TargetNode);
 			}
@@ -347,7 +347,7 @@ void FKismetRuntimeVariableDragDropAction::MakeSetter(FNodeConstructionParams In
 	}
 }
 
-bool FKismetRuntimeVariableDragDropAction::CanExecuteMakeSetter(FNodeConstructionParams InParams, UProperty* InVariableProperty)
+bool FKismetRuntimeVariableDragDropAction::CanExecuteMakeSetter(FNodeConstructionParams InParams, FProperty* InVariableProperty)
 {
 	check(InVariableProperty);
 	check(InParams.VariableSource.Get());
@@ -367,7 +367,7 @@ FReply FKismetRuntimeVariableDragDropAction::DroppedOnPanel( const TSharedRef< S
 {	
 	if (Graph.GetSchema()->IsA<UEdGraphSchema_K2>())
 	{
-		UProperty* VariableProperty = GetVariableProperty();
+		FProperty* VariableProperty = GetVariableProperty();
 		if (VariableProperty && CanVariableBeDropped(VariableProperty, Graph))
 		{
 			UStruct* Outer = VariableProperty->GetOwnerStruct();
@@ -402,7 +402,7 @@ FReply FKismetRuntimeVariableDragDropAction::DroppedOnPanel( const TSharedRef< S
 			// Show selection menu
 			else
 			{
-				FMenuBuilder MenuBuilder(true, NULL);
+				FMenuBuilder MenuBuilder(true, nullptr);
 				const FText VariableNameText = FText::FromName( VariableName );
 
 				MenuBuilder.BeginSection("BPVariableDroppedOn", VariableNameText );
@@ -442,7 +442,7 @@ FReply FKismetRuntimeVariableDragDropAction::DroppedOnPanel( const TSharedRef< S
 	return FReply::Handled();
 }
 
-bool FKismetRuntimeVariableDragDropAction::CanVariableBeDropped(const UProperty* InVariableProperty, const UEdGraph& InGraph) const
+bool FKismetRuntimeVariableDragDropAction::CanVariableBeDropped(const FProperty* InVariableProperty, const UEdGraph& InGraph) const
 {
 	bool bCanVariableBeDropped = false;
 	if (InVariableProperty)
@@ -471,7 +471,7 @@ UStruct* FKismetRuntimeVariableDragDropAction::GetLocalVariableScope() const
 	{
 		return VariableSource.Get();
 	}
-	return NULL;
+	return nullptr;
 }
 
 #undef LOCTEXT_NAMESPACE

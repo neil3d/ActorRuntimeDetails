@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "ARDUEFeatures.h"
 #include "CoreMinimal.h"
 #include "Misc/Attribute.h"
 #include "Templates/SubclassOf.h"
@@ -26,9 +25,7 @@
 #include "ScopedTransaction.h"
 
 class FMenuBuilder;
-#if UE_4_24_OR_LATER
 class UToolMenu;
-#endif
 class FSCSRuntimeEditorTreeNode;
 class SSCSRuntimeEditor;
 class UPrimitiveComponent;
@@ -170,7 +167,7 @@ public:
 	 * @param OutDepth If non-NULL, the depth of the child node will be returned in this parameter on success (default == NULL).
 	 * @return The child node that matches the given SCS node, or an invalid node reference if no match was found.
 	 */
-	FSCSRuntimeEditorTreeNodePtrType FindChild(const USCS_Node* InSCSNode, bool bRecursiveSearch = false, uint32* OutDepth = NULL) const;
+FSCSRuntimeEditorTreeNodePtrType FindChild(const USCS_Node* InSCSNode, bool bRecursiveSearch = false, uint32* OutDepth = nullptr) const;
 
 	/**
 	 * Attempts to find a reference to the child node that matches the given component template.
@@ -180,7 +177,7 @@ public:
 	 * @param OutDepth If non-NULL, the depth of the child node will be returned in this parameter on success (default == NULL).
 	 * @return The child node with a component template that matches the given component template instance, or an invalid node reference if no match was found.
 	 */
-	FSCSRuntimeEditorTreeNodePtrType FindChild(const UActorComponent* InComponentTemplate, bool bRecursiveSearch = false, uint32* OutDepth = NULL) const;
+FSCSRuntimeEditorTreeNodePtrType FindChild(const UActorComponent* InComponentTemplate, bool bRecursiveSearch = false, uint32* OutDepth = nullptr) const;
 
 	/**
 	 * Attempts to find a reference to the child node that matches the given component variable or instance name.
@@ -190,7 +187,7 @@ public:
 	 * @param OutDepth If non-NULL, the depth of the child node will be returned in this parameter on success (default == NULL).
 	 * @return The child node with a component variable or instance name that matches the given name, or an invalid node reference if no match was found.
 	 */
-	FSCSRuntimeEditorTreeNodePtrType FindChild(const FName& InVariableOrInstanceName, bool bRecursiveSearch = false, uint32* OutDepth = NULL) const;
+FSCSRuntimeEditorTreeNodePtrType FindChild(const FName& InVariableOrInstanceName, bool bRecursiveSearch = false, uint32* OutDepth = nullptr) const;
 
 	/**
 	 * Removes the given node from the list of child nodes.
@@ -701,11 +698,11 @@ class SSCSRuntimeEditorDragDropTree : public STreeView<FSCSRuntimeEditorTreeNode
 {
 public:
 	SLATE_BEGIN_ARGS( SSCSRuntimeEditorDragDropTree )
-		: _SCSRuntimeEditor( NULL )
+: _SCSRuntimeEditor( nullptr )
 		, _OnGenerateRow()
 		, _OnGetChildren()
 		, _OnSetExpansionRecursive()
-		, _TreeItemsSource( static_cast< TArray<FSCSRuntimeEditorTreeNodePtrType>* >(NULL) ) //@todo Slate Syntax: Initializing from NULL without a cast
+, _TreeItemsSource( static_cast< TArray<FSCSRuntimeEditorTreeNodePtrType>* >(nullptr) ) //@todo Slate Syntax: Initializing from NULL without a cast
 		, _ItemHeight(16)
 		, _OnContextMenuOpening()
 		, _OnMouseButtonDoubleClick()
@@ -1018,7 +1015,6 @@ protected:
 	/** Add a component from the selection in the combo box */
 	UActorComponent* PerformComboAddClass(TSubclassOf<UActorComponent> ComponentClass, EComponentCreateAction::Type ComponentCreateAction, UObject* AssetOverride);
 
-#if UE_4_24_OR_LATER
 	/** Called to display context menu when right clicking on the widget */
 	TSharedPtr< SWidget > CreateContextMenu();
 
@@ -1027,10 +1023,6 @@ protected:
 
 	/** Populate context menu on the fly */
 	void PopulateContextMenu(UToolMenu* InMenu);
-#else
-	/** Called to display context menu when right clicking on the widget */
-	TSharedPtr< SWidget > CreateContextMenu();
-#endif
 	
 	/** Called when the level editor requests a component to be renamed. */
 	void OnLevelComponentRequestRename(const UActorComponent* InComponent);

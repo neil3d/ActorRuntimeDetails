@@ -48,8 +48,8 @@ public:
 
 public:
 	// FNotifyHook
-	void NotifyPreChange(UProperty* PropertyAboutToChange) override;
-	void NotifyPostChange(const FPropertyChangedEvent& PropertyChangedEvent, UProperty* PropertyThatChanged) override;
+	void NotifyPreChange(FProperty* PropertyAboutToChange) override;
+	void NotifyPostChange(const FPropertyChangedEvent& PropertyChangedEvent, FProperty* PropertyThatChanged) override;
 	
 private:
 	AActor* GetSelectedActorInEditor() const;

@@ -5,13 +5,12 @@
 #include "Layout/WidgetPath.h"
 #include "Framework/Application/MenuStack.h"
 #include "Framework/Application/SlateApplication.h"
-#include "EditorStyleSet.h"
+#include "Styling/AppStyle.h"
 #include "EdGraphSchema_K2.h"
 #include "EdGraphSchema_K2_Actions.h"
 
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "ScopedTransaction.h"
-#include "MyBlueprintRuntimeItemDragDropAction.h"
 
 #define LOCTEXT_NAMESPACE "FMyBlueprintRuntimeItemDragDropAction"
 
@@ -120,13 +119,13 @@ void FMyBlueprintRuntimeItemDragDropAction::HoverTargetChanged()
 
 void FMyBlueprintRuntimeItemDragDropAction::SetFeedbackMessageError(const FText& Message)
 {
-	const FSlateBrush* StatusSymbol = FEditorStyle::GetBrush(TEXT("Graph.ConnectorFeedback.Error"));
+	const FSlateBrush* StatusSymbol = FAppStyle::GetBrush(TEXT("Graph.ConnectorFeedback.Error"));
 	SetSimpleFeedbackMessage(StatusSymbol, FLinearColor::White, Message);
 }
 
 void FMyBlueprintRuntimeItemDragDropAction::SetFeedbackMessageOK(const FText& Message)
 {
-	const FSlateBrush* StatusSymbol = FEditorStyle::GetBrush(TEXT("Graph.ConnectorFeedback.OK"));
+	const FSlateBrush* StatusSymbol = FAppStyle::GetBrush(TEXT("Graph.ConnectorFeedback.OK"));
 	SetSimpleFeedbackMessage(StatusSymbol, FLinearColor::White, Message);
 }
 

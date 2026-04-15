@@ -14,7 +14,7 @@
 #include "Widgets/Text/SRichTextBlock.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Layout/SSplitter.h"
-#include "EditorStyleSet.h"
+#include "Styling/AppStyle.h"
 #include "Editor/UnrealEdEngine.h"
 #include "Engine/BlueprintGeneratedClass.h"
 #include "Kismet2/ComponentEditorUtils.h"
@@ -52,7 +52,7 @@ public:
 		ChildSlot
 		[
 			SNew(SBorder)
-			.BorderImage(FEditorStyle::Get().GetBrush("ToolPanel.GroupBorder"))
+			.BorderImage(FAppStyle::Get().GetBrush("ToolPanel.GroupBorder"))
 			[
 				SNew(SHorizontalBox)
 				+ SHorizontalBox::Slot()
@@ -62,16 +62,16 @@ public:
 				.Padding(2)
 				[
 					SNew(SImage)
-					.Image(FEditorStyle::Get().GetBrush("Icons.Warning"))
+					.Image(FAppStyle::Get().GetBrush("Icons.Warning"))
 				]
 				+ SHorizontalBox::Slot()
 					.VAlign(VAlign_Center)
 					.Padding(2)
 					[
 						SNew(SRichTextBlock)
-						.DecoratorStyleSet(&FEditorStyle::Get())
+						.DecoratorStyleSet(&FAppStyle::Get())
 						.Justification(ETextJustify::Left)
-						.TextStyle(FEditorStyle::Get(), "DetailsView.BPMessageTextStyle")
+						.TextStyle(FAppStyle::Get(), "DetailsView.BPMessageTextStyle")
 						.Text(InArgs._WarningText)
 						.AutoWrapText(true)
 						+ SRichTextBlock::HyperlinkDecorator(TEXT("HyperlinkDecorator"), InArgs._OnHyperlinkClicked)
@@ -308,8 +308,6 @@ void SActorRuntimeDetails::PostUndo(bool bSuccess)
 	AActor* SelectedActor = GetSelectedActorInEditor();
 	if (SelectedActor)
 	{
-		GUnrealEd->SetActorSelectionFlags(SelectedActor);
-
 		// Update the pivot (widget) as the current selection may be a component within the Actor instance
 		GUnrealEd->UpdatePivotLocationForSelection();
 	}
@@ -320,7 +318,7 @@ void SActorRuntimeDetails::PostRedo(bool bSuccess)
 	PostUndo(bSuccess);
 }
 
-void SActorRuntimeDetails::NotifyPreChange(UProperty* PropertyAboutToChange)
+void SActorRuntimeDetails::NotifyPreChange(FProperty* PropertyAboutToChange)
 {
 	//Use bActorSeamlessTraveled to stop Actor Reconstruction
 	AActor* Actor = GetActorContext();
@@ -328,7 +326,7 @@ void SActorRuntimeDetails::NotifyPreChange(UProperty* PropertyAboutToChange)
 		Actor->bActorSeamlessTraveled = true;
 }
 
-void SActorRuntimeDetails::NotifyPostChange(const FPropertyChangedEvent& PropertyChangedEvent, UProperty* PropertyThatChanged)
+void SActorRuntimeDetails::NotifyPostChange(const FPropertyChangedEvent& PropertyChangedEvent, FProperty* PropertyThatChanged)
 {
 	AActor* Actor = GetActorContext();
 	if (Actor)
@@ -362,12 +360,7 @@ void SActorRuntimeDetails::OnEditorSelectionChanged(UObject* Object)
 
 			if(GEditor->GetSelectedComponentCount() == 0) // An actor was selected
 			{
-				// Ensure the selection flags are up to date for the components in the selected actor
-				for(FSelectionIterator It(GEditor->GetSelectedActorIterator()); It; ++It)
-				{
-					AActor* Actor = CastChecked<AActor>(*It);
-					GUnrealEd->SetActorSelectionFlags(Actor);
-				}
+				// UE5: SetActorSelectionFlags has been removed; selection state is now managed by USelection
 			}
 		}
 	}
@@ -583,7 +576,6 @@ void SActorRuntimeDetails::OnSCSRuntimeEditorTreeViewSelectionChanged(const TArr
 
 					DetailsView->SetObjects(DetailsObjects);
 
-					GUnrealEd->SetActorSelectionFlags(Actor);
 					GUnrealEd->UpdatePivotLocationForSelection(true);
 					GEditor->RedrawLevelEditingViewports();
 				}

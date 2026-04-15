@@ -2,7 +2,7 @@
 
 
 #include "SSCSRuntimeEditor.h"
-#include "AssetData.h"
+#include "AssetRegistry/AssetData.h"
 #include "Editor.h"
 #include "Framework/MultiBox/MultiBoxBuilder.h"
 #include "Components/PrimitiveComponent.h"
@@ -17,7 +17,7 @@
 #include "Widgets/Layout/SSpacer.h"
 #include "Widgets/Images/SImage.h"
 #include "Widgets/Input/SButton.h"
-#include "EditorStyleSet.h"
+#include "Styling/AppStyle.h"
 #include "Editor/UnrealEdEngine.h"
 #include "ThumbnailRendering/ThumbnailManager.h"
 #include "Components/ChildActorComponent.h"
@@ -72,10 +72,8 @@
 #include "ActorEditorUtils.h"
 #include "RuntimeDetailsEditorUtils.h"
 
-#if UE_4_24_OR_LATER
 #include "ToolMenus.h"
 #include "SSCSRuntimeEditorMenuContext.h"
-#endif
 
 #define LOCTEXT_NAMESPACE "SSCSRuntimeEditor"
 
@@ -308,13 +306,13 @@ void FSCSRuntimeRowDragDropOp::HoverTargetChanged()
 	bool bHoverHandled = false;
 
 	FSlateColor IconTint = FLinearColor::White;
-	const FSlateBrush* ErrorSymbol = FEditorStyle::GetBrush(TEXT("Graph.ConnectorFeedback.Error"));
+	const FSlateBrush* ErrorSymbol = FAppStyle::GetBrush(TEXT("Graph.ConnectorFeedback.Error"));
 
 	if(SourceNodes.Num() > 1)
 	{
 		// Display an error message if attempting to drop multiple source items onto a node
 		UEdGraphNode* VarNodeUnderCursor = Cast<UK2Node_Variable>(GetHoveredNode());
-		if (VarNodeUnderCursor != NULL)
+		if (VarNodeUnderCursor != nullptr)
 		{
 			// Icon/text to draw on tooltip
 			FText Message = LOCTEXT("InvalidMultiDropTarget", "Cannot replace node with multiple nodes");
@@ -326,7 +324,7 @@ void FSCSRuntimeRowDragDropOp::HoverTargetChanged()
 
 	if (!bHoverHandled)
 	{
-		if (UProperty* VariableProperty = GetVariableProperty())
+		if (FProperty* VariableProperty = GetVariableProperty())
 		{
 			const FSlateBrush* PrimarySymbol;
 			const FSlateBrush* SecondarySymbol;
@@ -467,7 +465,7 @@ UBlueprint* FSCSRuntimeEditorTreeNode::GetBlueprint() const
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 FSCSRuntimeEditorTreeNode::ENodeType FSCSRuntimeEditorTreeNode::GetNodeType() const
@@ -652,14 +650,14 @@ void FSCSRuntimeEditorTreeNode::AddChild(FSCSRuntimeEditorTreeNodePtrType InChil
 
 	// Add a child node to the SCS tree node if not already present
 	USCS_Node* SCS_ChildNode = InChildNodePtr->GetSCSNode();
-	if(SCS_ChildNode != NULL)
+	if(SCS_ChildNode != nullptr)
 	{
 		// Get the SCS instance that owns the child node
 		USimpleConstructionScript* SCS = SCS_ChildNode->GetSCS();
-		if(SCS != NULL)
+		if(SCS != nullptr)
 		{
 			// If the parent is also a valid SCS node
-			if(SCS_Node != NULL)
+			if(SCS_Node != nullptr)
 			{
 				// If the parent and child are both owned by the same SCS instance
 				if(SCS_Node->GetSCS() == SCS)
@@ -679,7 +677,7 @@ void FSCSRuntimeEditorTreeNode::AddChild(FSCSRuntimeEditorTreeNodePtrType InChil
 					SCS_ChildNode->SetParent(SCS_Node);
 				}
 			}
-			else if(ComponentTemplate != NULL)
+		else if(ComponentTemplate != nullptr)
 			{
 				// Adds the child to the SCS root set if not already present
 				SCS->AddNode(SCS_ChildNode);
@@ -720,7 +718,7 @@ void FSCSRuntimeEditorTreeNode::AddChild(FSCSRuntimeEditorTreeNodePtrType InChil
 FSCSRuntimeEditorTreeNodePtrType FSCSRuntimeEditorTreeNode::AddChild(USCS_Node* InSCSNode, bool bInIsInherited)
 {
 	// Ensure that the given SCS node is valid
-	check(InSCSNode != NULL);
+	check(InSCSNode != nullptr);
 
 	// If it doesn't already exist as a child node
 	FSCSRuntimeEditorTreeNodePtrType ChildNodePtr = FindChild(InSCSNode);
@@ -737,7 +735,7 @@ FSCSRuntimeEditorTreeNodePtrType FSCSRuntimeEditorTreeNode::AddChild(USCS_Node* 
 FSCSRuntimeEditorTreeNodePtrType FSCSRuntimeEditorTreeNode::AddChildFromComponent(UActorComponent* InComponentTemplate)
 {
 	// Ensure that the given component template is valid
-	check(InComponentTemplate != NULL);
+	check(InComponentTemplate != nullptr);
 
 	// If it doesn't already exist in the SCS editor tree
 	FSCSRuntimeEditorTreeNodePtrType ChildNodePtr = FindChild(InComponentTemplate);
@@ -807,7 +805,7 @@ FSCSRuntimeEditorTreeNodePtrType FSCSRuntimeEditorTreeNode::FindChild(const USCS
 	FSCSRuntimeEditorTreeNodePtrType Result;
 
 	// Ensure that the given SCS node is valid
-	if(InSCSNode != NULL)
+	if(InSCSNode != nullptr)
 	{
 		// Look for a match in our set of child nodes
 		for(int32 ChildIndex = 0; ChildIndex < Children.Num() && !Result.IsValid(); ++ChildIndex)
@@ -836,7 +834,7 @@ FSCSRuntimeEditorTreeNodePtrType FSCSRuntimeEditorTreeNode::FindChild(const UAct
 	FSCSRuntimeEditorTreeNodePtrType Result;
 
 	// Ensure that the given component template is valid
-	if(InComponentTemplate != NULL)
+	if(InComponentTemplate != nullptr)
 	{
 		// Look for a match in our set of child nodes
 		for(int32 ChildIndex = 0; ChildIndex < Children.Num() && !Result.IsValid(); ++ChildIndex)
@@ -942,12 +940,12 @@ FName FSCSRuntimeEditorTreeNodeComponentBase::GetVariableName() const
 		}
 	}
 
-	if (SCS_Node != NULL)
+	if (SCS_Node != nullptr)
 	{
 		// Use the same variable name as is obtained by the compiler
 		VariableName = SCS_Node->GetVariableName();
 	}
-	else if (ComponentTemplate != NULL)
+	else if (ComponentTemplate != nullptr)
 	{
 		// Try to find the component anchor variable name (first looks for an exact match then scans for any matching variable that points to the archetype in the CDO)
 		VariableName = FComponentEditorUtils::FindVariableNameGivenComponentInstance(ComponentTemplate);
@@ -966,7 +964,7 @@ FString FSCSRuntimeEditorTreeNodeComponentBase::GetDisplayString() const
 
 	bool const bHasValidVarName = (VariableName != NAME_None);
 	bool const bIsArrayVariable = bHasValidVarName && (VariableOwner != nullptr) && 
-		FindField<UArrayProperty>(VariableOwner, VariableName);
+	FindFProperty<FArrayProperty>(VariableOwner, VariableName);
 
 	// Only display SCS node variable names in the tree if they have not been autogenerated
 	if ((VariableName != NAME_None) && !bIsArrayVariable)
@@ -982,7 +980,7 @@ FString FSCSRuntimeEditorTreeNodeComponentBase::GetDisplayString() const
 		FString UnnamedString = LOCTEXT("UnnamedToolTip", "Unnamed").ToString();
 		FString NativeString = IsNative() ? LOCTEXT("NativeToolTip", "Native ").ToString() : TEXT("");
 
-		if (ComponentTemplate != NULL)
+		if (ComponentTemplate != nullptr)
 		{
 			return FString::Printf(TEXT("[%s %s%s]"), *UnnamedString, *NativeString, *ComponentTemplate->GetClass()->GetName());
 		}
@@ -1085,10 +1083,10 @@ bool FSCSRuntimeEditorTreeNodeInstanceAddedComponent::IsRootComponent() const
 	bool bIsRoot = true;
 	UActorComponent* Template = GetComponentTemplate();
 
-	if (Template != NULL)
+	if (Template != nullptr)
 	{
 		AActor* CDO = Template->GetOwner();
-		if (CDO != NULL)
+		if (CDO != nullptr)
 		{
 			// Evaluate to TRUE if we have a valid component reference that matches the native root component
 			bIsRoot = (Template == CDO->GetRootComponent());
@@ -1193,7 +1191,7 @@ FSCSRuntimeEditorTreeNodeComponent::FSCSRuntimeEditorTreeNodeComponent(UActorCom
 
 bool FSCSRuntimeEditorTreeNodeComponent::IsNative() const
 {
-	return GetSCSNode() == NULL && GetComponentTemplate() != NULL;
+	return GetSCSNode() == nullptr && GetComponentTemplate() != nullptr;
 }
 
 bool FSCSRuntimeEditorTreeNodeComponent::IsRootComponent() const
@@ -1202,19 +1200,19 @@ bool FSCSRuntimeEditorTreeNodeComponent::IsRootComponent() const
 	USCS_Node* SCS_Node = GetSCSNode();
 	UActorComponent* ComponentTemplate = GetComponentTemplate();
 
-	if (SCS_Node != NULL)
+	if (SCS_Node != nullptr)
 	{
 		USimpleConstructionScript* SCS = SCS_Node->GetSCS();
-		if (SCS != NULL)
+		if (SCS != nullptr)
 		{
 			// Evaluate to TRUE if we have an SCS node reference, it is contained in the SCS root set and does not have an external parent
 			bIsRoot = SCS->GetRootNodes().Contains(SCS_Node) && SCS_Node->ParentComponentOrVariableName == NAME_None;
 		}
 	}
-	else if (ComponentTemplate != NULL)
+	else if (ComponentTemplate != nullptr)
 	{
 		AActor* CDO = ComponentTemplate->GetOwner();
-		if (CDO != NULL)
+		if (CDO != nullptr)
 		{
 			// Evaluate to TRUE if we have a valid component reference that matches the native root component
 			bIsRoot = (ComponentTemplate == CDO->GetRootComponent());
@@ -1313,7 +1311,7 @@ UActorComponent* FSCSRuntimeEditorTreeNode::FindComponentInstanceInActor(const A
 	//		if (VariableName != NAME_None)
 	//		{
 	//			UWorld* World = InActor->GetWorld();
-	//			UObjectPropertyBase* Property = FindField<UObjectPropertyBase>(InActor->GetClass(), VariableName);
+//			FObjectPropertyBase* Property = FindFProperty<FObjectPropertyBase>(InActor->GetClass(), VariableName);
 	//			if (Property != NULL)
 	//			{
 	//				// Return the component instance that's stored in the property with the given variable name
@@ -1354,7 +1352,7 @@ void FSCSRuntimeEditorTreeNodeComponent::RemoveMeAsChild()
 	if (USCS_Node* SCS_ChildNode = GetSCSNode())
 	{
 		USimpleConstructionScript* SCS = SCS_ChildNode->GetSCS();
-		if (SCS != NULL)
+		if (SCS != nullptr)
 		{
 			SCS->RemoveNode(SCS_ChildNode);
 		}
@@ -1363,7 +1361,7 @@ void FSCSRuntimeEditorTreeNodeComponent::RemoveMeAsChild()
 
 UActorComponent* FSCSRuntimeEditorTreeNodeComponent::INTERNAL_GetOverridenComponentTemplate(UBlueprint* Blueprint, bool bCreateIfNecessary) const
 {
-	UActorComponent* OverriddenComponent = NULL;
+	UActorComponent* OverriddenComponent = nullptr;
 
 	FComponentKey Key(GetSCSNode());
 
@@ -1503,8 +1501,8 @@ void SSCS_RuntimeRowWidget::Construct( const FArguments& InArgs, TSharedPtr<SSCS
 	
 	auto Args = FSuperRowType::FArguments()
 		.Style(bIsSeparator ?
-			&FEditorStyle::Get().GetWidgetStyle<FTableRowStyle>("TableView.NoHoverTableRow") :
-			&FEditorStyle::Get().GetWidgetStyle<FTableRowStyle>("SceneOutliner.TableViewRow")) //@todo create editor style for the SCS tree
+			&FAppStyle::Get().GetWidgetStyle<FTableRowStyle>("TableView.NoHoverTableRow") :
+			&FAppStyle::Get().GetWidgetStyle<FTableRowStyle>("SceneOutliner.TableViewRow")) //@todo create editor style for the SCS tree
 		.Padding(FMargin(0.f, 0.f, 0.f, 4.f))
 		.ShowSelection(!bIsSeparator)
 		.OnDragDetected(this, &SSCS_RuntimeRowWidget::HandleOnDragDetected)
@@ -1524,7 +1522,7 @@ SSCS_RuntimeRowWidget::~SSCS_RuntimeRowWidget()
 	if(Editor.IsValid())
 	{
 		USCS_Node* SCS_Node = GetNode()->GetSCSNode();
-		if(SCS_Node != NULL && Editor->IsNodeInSimpleConstructionScript(SCS_Node))
+		if(SCS_Node != nullptr && Editor->IsNodeInSimpleConstructionScript(SCS_Node))
 		{
 			SCS_Node->SetOnNameChanged(FSCSNodeNameChanged());
 		}
@@ -1539,8 +1537,8 @@ TSharedRef<SWidget> SSCS_RuntimeRowWidget::GenerateWidgetForColumn( const FName&
 	if(ColumnName == SCS_ColumnName_ComponentClass)
 	{
 		// Setup a default icon brush.
-		const FSlateBrush* ComponentIcon = FEditorStyle::GetBrush("SCS.NativeComponent");
-		if(NodePtr->GetComponentTemplate() != NULL)
+		const FSlateBrush* ComponentIcon = FAppStyle::GetBrush("SCS.NativeComponent");
+		if(NodePtr->GetComponentTemplate() != nullptr)
 		{
 			ComponentIcon = FSlateIconFinder::FindIconBrushForClass( NodePtr->GetComponentTemplate()->GetClass(), TEXT("SCS.Component") );
 		}
@@ -1640,7 +1638,7 @@ void SSCS_RuntimeRowWidget::AddToToolTipInfoBox(const TSharedRef<SVerticalBox>& 
 			.Padding(0, 0, 4, 0)
 			[
 				SNew(STextBlock)
-				.TextStyle(FEditorStyle::Get(), bImportant ? "SCSEditor.ComponentTooltip.ImportantLabel" : "SCSEditor.ComponentTooltip.Label")
+				.TextStyle(FAppStyle::Get(), bImportant ? "SCSEditor.ComponentTooltip.ImportantLabel" : "SCSEditor.ComponentTooltip.Label")
 				.Text(FText::Format(LOCTEXT("AssetViewTooltipFormat", "{0}:"), Key))
 			]
 
@@ -1654,7 +1652,7 @@ void SSCS_RuntimeRowWidget::AddToToolTipInfoBox(const TSharedRef<SVerticalBox>& 
 			.AutoWidth()
 			[
 				SNew(STextBlock)
-				.TextStyle(FEditorStyle::Get(), bImportant ? "SCSEditor.ComponentTooltip.ImportantValue" : "SCSEditor.ComponentTooltip.Value")
+				.TextStyle(FAppStyle::Get(), bImportant ? "SCSEditor.ComponentTooltip.ImportantValue" : "SCSEditor.ComponentTooltip.Value")
 				.Text(Value)
 			]
 		];
@@ -1684,7 +1682,7 @@ TSharedRef<SToolTip> SSCS_RuntimeRowWidget::CreateToolTipWidget() const
 					.Padding(FMargin(0, 2, 0, 4))
 					[
 						SNew(STextBlock)
-						.TextStyle(FEditorStyle::Get(), "SCSEditor.ComponentTooltip.ClassDescription")
+						.TextStyle(FAppStyle::Get(), "SCSEditor.ComponentTooltip.ClassDescription")
 						.Text(ClassTooltip)
 						.WrapTextAt(400.0f)
 					];
@@ -1711,7 +1709,7 @@ TSharedRef<SToolTip> SSCS_RuntimeRowWidget::CreateToolTipWidget() const
 	}
 
 	TSharedRef<SBorder> TooltipContent = SNew(SBorder)
-		.BorderImage(FEditorStyle::GetBrush("NoBorder"))
+		.BorderImage(FAppStyle::GetBrush("NoBorder"))
 		.Padding(0)
 		[
 			SNew(SVerticalBox)
@@ -1733,7 +1731,7 @@ TSharedRef<SToolTip> SSCS_RuntimeRowWidget::CreateToolTipWidget() const
 					.Padding(2)
 					[
 						SNew(STextBlock)
-						.TextStyle(FEditorStyle::Get(), "SCSEditor.ComponentTooltip.Title")
+						.TextStyle(FAppStyle::Get(), "SCSEditor.ComponentTooltip.Title")
 						.Text(this, &SSCS_RuntimeRowWidget::GetTooltipText)
 					]
 				]
@@ -1743,7 +1741,7 @@ TSharedRef<SToolTip> SSCS_RuntimeRowWidget::CreateToolTipWidget() const
 			.AutoHeight()
 			[
 				SNew(SBorder)
-				.BorderImage(FEditorStyle::GetBrush("NoBorder"))
+				.BorderImage(FAppStyle::GetBrush("NoBorder"))
 				.Padding(2)
 				[
 					InfoBox
@@ -1763,11 +1761,11 @@ FSlateBrush const* SSCS_RuntimeRowWidget::GetMobilityIconImage() const
 		{
 			if (SceneComponentTemplate->Mobility == EComponentMobility::Movable)
 			{
-				return FEditorStyle::GetBrush(TEXT("ClassIcon.MovableMobilityIcon"));
+				return FAppStyle::GetBrush(TEXT("ClassIcon.MovableMobilityIcon"));
 			}
 			else if (SceneComponentTemplate->Mobility == EComponentMobility::Stationary)
 			{
-				return FEditorStyle::GetBrush(TEXT("ClassIcon.StationaryMobilityIcon"));
+				return FAppStyle::GetBrush(TEXT("ClassIcon.StationaryMobilityIcon"));
 			}
 
 			// static components don't get an icon (because static is the most common
@@ -1945,7 +1943,7 @@ FText SSCS_RuntimeRowWidget::GetAssetName() const
 	if(NodePtr.IsValid() && NodePtr->GetComponentTemplate())
 	{
 		UObject* Asset = FComponentAssetBrokerage::GetAssetFromComponent(NodePtr->GetComponentTemplate());
-		if(Asset != NULL)
+		if(Asset != nullptr)
 		{
 			AssetName = FText::FromString(Asset->GetName());
 		}
@@ -1962,7 +1960,7 @@ FText SSCS_RuntimeRowWidget::GetAssetPath() const
 	if(NodePtr.IsValid() && NodePtr->GetComponentTemplate())
 	{
 		UObject* Asset = FComponentAssetBrokerage::GetAssetFromComponent(NodePtr->GetComponentTemplate());
-		if(Asset != NULL)
+		if(Asset != nullptr)
 		{
 			AssetName = FText::FromString(Asset->GetPathName());
 		}
@@ -2208,7 +2206,7 @@ void SSCS_RuntimeRowWidget::HandleOnDragEnter( const FDragDropEvent& DragDropEve
 						Message = FText::Format(LOCTEXT("DropActionToolTip_Error_CannotAttachToChild", "Cannot attach {0} to one of its children."), DraggedNodePtr->GetDisplayName());
 					}
 				}
-				else if (HoveredTemplate == NULL || DraggedTemplate == NULL)
+				else if (HoveredTemplate == nullptr || DraggedTemplate == nullptr)
 				{
 					if (HoveredTemplate == nullptr)
 					{
@@ -2394,8 +2392,8 @@ void SSCS_RuntimeRowWidget::HandleOnDragEnter( const FDragDropEvent& DragDropEve
 		}
 
 		const FSlateBrush* StatusSymbol = DragRowOp->PendingDropAction != FSCSRuntimeRowDragDropOp::DropAction_None
-			? FEditorStyle::GetBrush(TEXT("Graph.ConnectorFeedback.OK"))
-			: FEditorStyle::GetBrush(TEXT("Graph.ConnectorFeedback.Error"));
+			? FAppStyle::GetBrush(TEXT("Graph.ConnectorFeedback.OK"))
+			: FAppStyle::GetBrush(TEXT("Graph.ConnectorFeedback.Error"));
 
 		if (Message.IsEmpty())
 		{
@@ -3306,7 +3304,7 @@ TSharedRef<SToolTip> SSCS_RuntimeRowWidget_ActorRoot::CreateToolTipWidget() cons
 	AddToToolTipInfoBox(InfoBox, LOCTEXT("TooltipMobility", "Mobility"), SNullWidget::NullWidget, TAttribute<FText>::Create(TAttribute<FText>::FGetter::CreateSP(this, &SSCS_RuntimeRowWidget_ActorRoot::GetActorMobilityText)), false);
 
 	TSharedRef<SBorder> TooltipContent = SNew(SBorder)
-		.BorderImage(FEditorStyle::GetBrush("NoBorder"))
+		.BorderImage(FAppStyle::GetBrush("NoBorder"))
 		.Padding(0)
 		[
 			SNew(SVerticalBox)
@@ -3328,7 +3326,7 @@ TSharedRef<SToolTip> SSCS_RuntimeRowWidget_ActorRoot::CreateToolTipWidget() cons
 					.Padding(4)
 					[
 						SNew(STextBlock)
-						.TextStyle(FEditorStyle::Get(), "SCSEditor.ComponentTooltip.Title")
+						.TextStyle(FAppStyle::Get(), "SCSEditor.ComponentTooltip.Title")
 						.Text(this, &SSCS_RuntimeRowWidget_ActorRoot::GetActorDisplayText)
 					]
 				]
@@ -3338,7 +3336,7 @@ TSharedRef<SToolTip> SSCS_RuntimeRowWidget_ActorRoot::CreateToolTipWidget() cons
 			.AutoHeight()
 			[
 				SNew(SBorder)
-				.BorderImage(FEditorStyle::GetBrush("NoBorder"))
+				.BorderImage(FAppStyle::GetBrush("NoBorder"))
 				.Padding(4)
 				[
 					InfoBox
@@ -3495,8 +3493,8 @@ TSharedRef<SWidget> SSCS_RuntimeRowWidget_Separator::GenerateWidgetForColumn(con
 		.Padding(1.f)
 		[
 			SNew(SBorder)
-			.Padding(FEditorStyle::GetMargin(TEXT("Menu.Separator.Padding")))
-			.BorderImage(FEditorStyle::GetBrush(TEXT("Menu.Separator")))
+			.Padding(FAppStyle::GetMargin(TEXT("Menu.Separator.Padding")))
+			.BorderImage(FAppStyle::GetBrush(TEXT("Menu.Separator")))
 		];
 }
 
@@ -3549,7 +3547,7 @@ void SSCSRuntimeEditor::Construct( const FArguments& InArgs )
 		FUIAction( FExecuteAction::CreateSP( this, &SSCSRuntimeEditor::OnFindReferences ) )
 	);
 
-	FSlateBrush const* MobilityHeaderBrush = FEditorStyle::GetBrush(TEXT("ClassIcon.ComponentMobilityHeaderIcon"));
+	FSlateBrush const* MobilityHeaderBrush = FAppStyle::GetBrush(TEXT("ClassIcon.ComponentMobilityHeaderIcon"));
 	
 	TSharedPtr<SHeaderRow> HeaderRow = SNew(SHeaderRow)
 		+ SHeaderRow::Column(SCS_ColumnName_ComponentClass)
@@ -3580,7 +3578,7 @@ void SSCSRuntimeEditor::Construct( const FArguments& InArgs )
 
 	TSharedPtr<SWidget> Contents;
 
-	FMenuBuilder EditBlueprintMenuBuilder( true, NULL );
+	FMenuBuilder EditBlueprintMenuBuilder( true, nullptr );
 
 	EditBlueprintMenuBuilder.BeginSection( NAME_None, LOCTEXT("EditBlueprintMenu_ExistingBlueprintHeader", "Existing Blueprint" ) );
 
@@ -3652,7 +3650,7 @@ void SSCSRuntimeEditor::Construct( const FArguments& InArgs )
 		[
 			SNew(SBorder)
 			.Padding(0)
-			.BorderImage(FEditorStyle::GetBrush("DetailsView.CategoryTop"))
+			.BorderImage(FAppStyle::GetBrush("DetailsView.CategoryTop"))
 			.AddMetaData<FTagMetaData>(FTagMetaData(TEXT("ComponentsPanel")))
 			.BorderBackgroundColor( FLinearColor( .6,.6,.6, 1.0f ) )
 			[
@@ -3688,11 +3686,11 @@ void SSCSRuntimeEditor::Construct( const FArguments& InArgs )
 							.AddMetaData<FTagMetaData>(FTagMetaData(TEXT("Actor.ConvertToBlueprint")))
 							.Visibility( this, &SSCSRuntimeEditor::GetPromoteToBlueprintButtonVisibility )
 							.OnClicked( this, &SSCSRuntimeEditor::OnPromoteToBlueprintClicked )
-							.ButtonStyle(FEditorStyle::Get(), "FlatButton.Primary")
+							.ButtonStyle(FAppStyle::Get(), "FlatButton.Primary")
 							.ContentPadding(FMargin(10,0))
-							.ToolTip(IDocumentation::Get()->CreateToolTip(
-								LOCTEXT("PromoteToBluerprintTooltip","Converts this actor into a reusable Blueprint Class that can have script behavior" ),
-								NULL,
+								.ToolTip(IDocumentation::Get()->CreateToolTip(
+									LOCTEXT("PromoteToBluerprintTooltip","Converts this actor into a reusable Blueprint Class that can have script behavior" ),
+									nullptr,
 								TEXT("Shared/LevelEditor"),
 								TEXT("ConvertToBlueprint")))
 							[
@@ -3705,8 +3703,8 @@ void SSCSRuntimeEditor::Construct( const FArguments& InArgs )
 								.AutoWidth()
 								[
 									SNew(STextBlock)
-									.TextStyle(FEditorStyle::Get(), "ContentBrowser.TopBar.Font")
-									.Font( FEditorStyle::Get().GetFontStyle( "FontAwesome.10" ) )
+									.TextStyle(FAppStyle::Get(), "ContentBrowser.TopBar.Font")
+									.Font( FAppStyle::Get().GetFontStyle( "FontAwesome.10" ) )
 									.Text( FEditorFontGlyphs::Cogs )
 								]
 
@@ -3716,7 +3714,7 @@ void SSCSRuntimeEditor::Construct( const FArguments& InArgs )
 								.AutoWidth()
 								[
 									SNew(STextBlock)
-									.TextStyle(FEditorStyle::Get(), "ContentBrowser.TopBar.Font")
+									.TextStyle(FAppStyle::Get(), "ContentBrowser.TopBar.Font")
 									//.Text( LOCTEXT("PromoteToBlueprint", "Add Script") )
 									.Text(LOCTEXT("PromoteToBlueprint", "Blueprint/Add Script"))
 								]
@@ -3732,8 +3730,8 @@ void SSCSRuntimeEditor::Construct( const FArguments& InArgs )
 							.AddMetaData<FTagMetaData>(FTagMetaData(TEXT("Actor.EditBlueprint")))
 							.Visibility(this, &SSCSRuntimeEditor::GetEditBlueprintButtonVisibility)
 							.ContentPadding(FMargin(10, 0))
-							.ComboButtonStyle(FEditorStyle::Get(), "ToolbarComboButton")
-							.ButtonStyle(FEditorStyle::Get(), "FlatButton.Primary")
+							.ComboButtonStyle(FAppStyle::Get(), "ToolbarComboButton")
+							.ButtonStyle(FAppStyle::Get(), "FlatButton.Primary")
 							.ForegroundColor(FLinearColor::White)
 							.ButtonContent()
 							[
@@ -3746,15 +3744,15 @@ void SSCSRuntimeEditor::Construct( const FArguments& InArgs )
 								.Padding(3.f)
 								[
 									SNew(STextBlock)
-									.TextStyle(FEditorStyle::Get(), "ContentBrowser.TopBar.Font")
-									.Font(FEditorStyle::Get().GetFontStyle("FontAwesome.10"))
+									.TextStyle(FAppStyle::Get(), "ContentBrowser.TopBar.Font")
+									.Font(FAppStyle::Get().GetFontStyle("FontAwesome.10"))
 									.Text(FEditorFontGlyphs::Cogs)
 								]
 						
 								+ SHorizontalBox::Slot()
 								[
 									SNew(STextBlock)
-									.TextStyle(FEditorStyle::Get(), "ContentBrowser.TopBar.Font")
+									.TextStyle(FAppStyle::Get(), "ContentBrowser.TopBar.Font")
 									.Text(LOCTEXT("EditBlueprint", "Edit Blueprint"))
 								]
 							]
@@ -3775,7 +3773,7 @@ void SSCSRuntimeEditor::Construct( const FArguments& InArgs )
 		[
 			SNew(SBorder)
 			.Padding(2.0f)
-			.BorderImage(FEditorStyle::GetBrush("SCSEditor.TreePanel"))
+			.BorderImage(FAppStyle::GetBrush("SCSEditor.TreePanel"))
 			.AddMetaData<FTagMetaData>(FTagMetaData(TEXT("ComponentsPanel")))
 			[
 				SCSTreeWidget.ToSharedRef()
@@ -3819,7 +3817,7 @@ void SSCSRuntimeEditor::Construct( const FArguments& InArgs )
 	if (EditorMode == EComponentEditorMode::ActorInstance)
 	{
 		GEngine->OnLevelComponentRequestRename().AddSP(this, &SSCSRuntimeEditor::OnLevelComponentRequestRename);
-		GEditor->OnObjectsReplaced().AddSP(this, &SSCSRuntimeEditor::OnObjectsReplaced);
+		FCoreUObjectDelegates::OnObjectsReplaced.AddSP(this, &SSCSRuntimeEditor::OnObjectsReplaced);
 	}
 }
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
@@ -3898,7 +3896,7 @@ TSharedRef<ITableRow> SSCSRuntimeEditor::MakeTableRowWidget( FSCSRuntimeEditorTr
 {
 	// Setup a meta tag for this node
 	FGraphNodeMetaData TagMeta(TEXT("TableRow"));
-	if (InNodePtr.IsValid() && InNodePtr->GetComponentTemplate() != NULL )
+	if (InNodePtr.IsValid() && InNodePtr->GetComponentTemplate() != nullptr )
 	{
 		TagMeta.FriendlyName = FString::Printf(TEXT("TableRow,%s,0"), *InNodePtr->GetComponentTemplate()->GetReadableName());
 	}
@@ -3930,7 +3928,6 @@ void SSCSRuntimeEditor::GetSelectedItemsForContextMenu(TArray<FComponentEventCon
 	}
 }
 
-#if UE_4_24_OR_LATER
 void SSCSRuntimeEditor::PopulateContextMenu(UToolMenu* Menu)
 {
 	TArray<FSCSRuntimeEditorTreeNodePtrType> SelectedItems = SCSTreeWidget->GetSelectedItems();
@@ -4061,110 +4058,7 @@ TSharedPtr< SWidget > SSCSRuntimeEditor::CreateContextMenu()
 	return TSharedPtr<SWidget>();
 }
 
-#else
 
-TSharedPtr< SWidget > SSCSRuntimeEditor::CreateContextMenu()
-{
-	TArray<FSCSRuntimeEditorTreeNodePtrType> SelectedItems = SCSTreeWidget->GetSelectedItems();
-
-	if (SelectedItems.Num() > 0 || CanPasteNodes())
-	{
-		const bool CloseAfterSelection = true;
-		FMenuBuilder MenuBuilder( CloseAfterSelection, CommandList );
-
-		bool bOnlyShowPasteOption = false;
-
-		if (SelectedItems.Num() > 0)
-		{
-			if (SelectedItems.Num() == 1 && SelectedItems[0]->GetNodeType() == FSCSRuntimeEditorTreeNode::RootActorNode)
-			{
-				bOnlyShowPasteOption = true;
-			}
-			else
-			{
-				for (FSCSRuntimeEditorTreeNodePtrType SelectedNode : SelectedItems)
-				{
-					if (SelectedNode->GetNodeType() != FSCSRuntimeEditorTreeNode::ComponentNode)
-					{
-						bOnlyShowPasteOption = true;
-						break;
-					}
-				}
-				if (!bOnlyShowPasteOption)
-				{
-					TArray<UActorComponent*> SelectedComponents;
-					TArray<FSCSRuntimeEditorTreeNodePtrType> SelectedNodes = GetSelectedNodes();
-					for (int32 i = 0; i < SelectedNodes.Num(); ++i)
-					{
-						// Get the current selected node reference
-						FSCSRuntimeEditorTreeNodePtrType SelectedNodePtr = SelectedNodes[i];
-						check(SelectedNodePtr.IsValid());
-
-						// Get the component template associated with the selected node
-						UActorComponent* ComponentTemplate = SelectedNodePtr->GetComponentTemplate();
-						if (ComponentTemplate)
-						{
-							SelectedComponents.Add(ComponentTemplate);
-						}
-					}
-
-					if (EditorMode == EComponentEditorMode::BlueprintSCS)
-					{
-						if (SelectedItems.Num() == 1)
-						{
-							MenuBuilder.AddMenuEntry(FGraphEditorCommands::Get().FindReferences);
-						}
-
-						// Collect the classes of all selected objects
-						TArray<UClass*> SelectionClasses;
-						for( auto NodeIter = SelectedNodes.CreateConstIterator(); NodeIter; ++NodeIter )
-						{
-							auto TreeNode = *NodeIter;
-							if( UActorComponent* ComponentTemplate = TreeNode->GetComponentTemplate() )
-							{
-								SelectionClasses.Add(ComponentTemplate->GetClass());
-							}
-						}
-
-						if ( SelectionClasses.Num() )
-						{
-							// Find the common base class of all selected classes
-							UClass* SelectedClass = UClass::FindCommonBase( SelectionClasses );
-							// Build an event submenu if we can generate events
-							if( FBlueprintEditorUtils::CanClassGenerateEvents( SelectedClass ))
-							{
-								MenuBuilder.AddSubMenu(	LOCTEXT("AddEventSubMenu", "Add Event"), 
-									LOCTEXT("ActtionsSubMenu_ToolTip", "Add Event"), 
-									FNewMenuDelegate::CreateStatic( &SSCSRuntimeEditor::BuildMenuEventsSection,
-									GetBlueprint(), SelectedClass, FCanExecuteAction::CreateSP(this, &SSCSRuntimeEditor::IsEditingAllowed),
-									FGetSelectedObjectsDelegate::CreateSP(this, &SSCSRuntimeEditor::GetSelectedItemsForContextMenu)));
-							}
-						}
-					}					
-
-					FComponentEditorUtils::FillComponentContextMenuOptions(MenuBuilder, SelectedComponents);
-				}
-			}
-		}
-		else
-		{
-			bOnlyShowPasteOption = true;
-		}
-
-		if (bOnlyShowPasteOption)
-		{
-			MenuBuilder.BeginSection("PasteComponent", LOCTEXT("EditComponentHeading", "Edit") );
-			{
-				MenuBuilder.AddMenuEntry( FGenericCommands::Get().Paste );
-			}
-			MenuBuilder.EndSection();
-		}
-
-		return MenuBuilder.MakeWidget();
-	}
-	return TSharedPtr<SWidget>();
-}
-#endif
 
 void SSCSRuntimeEditor::BuildMenuEventsSection(FMenuBuilder& Menu, UBlueprint* Blueprint, UClass* SelectedClass, FCanExecuteAction CanExecuteActionDelegate, FGetSelectedObjectsDelegate GetSelectedObjectsDelegate)
 {
@@ -4182,9 +4076,9 @@ void SSCSRuntimeEditor::BuildMenuEventsSection(FMenuBuilder& Menu, UBlueprint* B
 	TArray< FMenuEntry > Actions;
 	TArray< FMenuEntry > NodeActions;
 	// Build Events entries
-	for (TFieldIterator<UMulticastDelegateProperty> PropertyIt(SelectedClass, EFieldIteratorFlags::IncludeSuper); PropertyIt; ++PropertyIt)
+	for (TFieldIterator<FMulticastDelegateProperty> PropertyIt(SelectedClass, EFieldIteratorFlags::IncludeSuper); PropertyIt; ++PropertyIt)
 	{
-		UProperty* Property = *PropertyIt;
+		FMulticastDelegateProperty* Property = *PropertyIt;
 
 		// Check for multicast delegates that we can safely assign
 		if (!Property->HasAnyPropertyFlags(CPF_Parm) && Property->HasAllPropertyFlags(CPF_BlueprintAssignable))
@@ -4197,7 +4091,7 @@ void SSCSRuntimeEditor::BuildMenuEventsSection(FMenuBuilder& Menu, UBlueprint* B
 				if( NodeIter->Component.IsValid() )
 				{
 					FName VariableName = NodeIter->VariableName;
-					UObjectProperty* VariableProperty = FindField<UObjectProperty>( Blueprint->SkeletonGeneratedClass, VariableName );
+					FObjectProperty* VariableProperty = FindFProperty<FObjectProperty>( Blueprint->SkeletonGeneratedClass, VariableName );
 
 					if( VariableProperty && FKismetEditorUtilities::FindBoundEventForComponent( Blueprint, EventName, VariableProperty->GetFName() ))
 					{
@@ -4252,7 +4146,7 @@ void SSCSRuntimeEditor::CreateEventsForSelection(UBlueprint* Blueprint, FName Ev
 void SSCSRuntimeEditor::ConstructEvent(UBlueprint* Blueprint, const FName EventName, const FComponentEventConstructionData EventData)
 {
 	// Find the corresponding variable property in the Blueprint
-	UObjectProperty* VariableProperty = FindField<UObjectProperty>(Blueprint->SkeletonGeneratedClass, EventData.VariableName );
+	FObjectProperty* VariableProperty = FindFProperty<FObjectProperty>(Blueprint->SkeletonGeneratedClass, EventData.VariableName );
 
 	if( VariableProperty )
 	{
@@ -4266,7 +4160,7 @@ void SSCSRuntimeEditor::ConstructEvent(UBlueprint* Blueprint, const FName EventN
 void SSCSRuntimeEditor::ViewEvent(UBlueprint* Blueprint, const FName EventName, const FComponentEventConstructionData EventData)
 {
 	// Find the corresponding variable property in the Blueprint
-	UObjectProperty* VariableProperty = FindField<UObjectProperty>(Blueprint->SkeletonGeneratedClass, EventData.VariableName );
+	FObjectProperty* VariableProperty = FindFProperty<FObjectProperty>(Blueprint->SkeletonGeneratedClass, EventData.VariableName );
 
 	if( VariableProperty )
 	{
@@ -4507,7 +4401,7 @@ FSCSRuntimeEditorTreeNodePtrType SSCSRuntimeEditor::GetNodeFromActorComponent(co
 			if (!ActorComponent->IsTemplate())
 			{
 				// Get the component owner's class object
-				check(ActorComponent->GetOwner() != NULL);
+				check(ActorComponent->GetOwner() != nullptr);
 				UClass* OwnerClass = ActorComponent->GetOwner()->GetClass();
 
 				// If the given component is one that's created during Blueprint construction
@@ -4525,7 +4419,7 @@ FSCSRuntimeEditorTreeNodePtrType SSCSRuntimeEditor::GetNodeFromActorComponent(co
 							// Attempt to locate an SCS node with a variable name that matches the name of the given component
 							for (USCS_Node* SCS_Node : ParentBPStack[StackIndex]->SimpleConstructionScript->GetAllNodes())
 							{
-								check(SCS_Node != NULL);
+							check(SCS_Node != nullptr);
 								if (SCS_Node->GetVariableName() == ActorComponent->GetFName())
 								{
 									// We found a match; redirect to the component archetype instance that may be associated with a tree node
@@ -4662,7 +4556,7 @@ void SSCSRuntimeEditor::HighlightTreeNode(const USCS_Node* Node, FName Property)
 	if( Property != FName() )
 	{
 		UActorComponent* Component = TreeNode->GetComponentTemplate();
-		UProperty* CurrentProp = FindField<UProperty>(Component->GetClass(), Property);
+		FProperty* CurrentProp = FindFProperty<FProperty>(Component->GetClass(), Property);
 		FPropertyPath Path;
 		if( CurrentProp )
 		{
@@ -5279,7 +5173,7 @@ UActorComponent* SSCSRuntimeEditor::AddNewComponent( UClass* NewComponentClass, 
 	if (NewComponentClass->ClassWithin && NewComponentClass->ClassWithin != UObject::StaticClass())
 	{
 		FNotificationInfo Info(LOCTEXT("AddComponentFailed", "Cannot add components that have \"Within\" markup"));
-		Info.Image = FEditorStyle::GetBrush(TEXT("Icons.Error"));
+		Info.Image = FAppStyle::GetBrush(TEXT("Icons.Error"));
 		Info.bFireAndForget = true;
 		Info.bUseSuccessFailIcons = false;
 		Info.ExpireDuration = 5.0f;
@@ -5304,7 +5198,7 @@ UActorComponent* SSCSRuntimeEditor::AddNewComponent( UClass* NewComponentClass, 
 	FName TemplateVariableName;
 
 	USCS_Node* SCSNode = Cast<USCS_Node>(Asset);
-	UActorComponent* ComponentTemplate = (SCSNode ? SCSNode->ComponentTemplate : Cast<UActorComponent>(Asset));
+	UActorComponent* ComponentTemplate = (SCSNode ? SCSNode->ComponentTemplate.Get() : Cast<UActorComponent>(Asset));
 
 	if (SCSNode)
 	{
@@ -5436,7 +5330,7 @@ UActorComponent* SSCSRuntimeEditor::AddNewComponent( UClass* NewComponentClass, 
 			ActorInstance->GetComponents(PostInstanceComponents);
 			for (UActorComponent* ActorComponent : PostInstanceComponents)
 			{
-				if (!ActorComponent->IsRegistered() && ActorComponent->bAutoRegister && !ActorComponent->IsPendingKill() && !PreInstanceComponents.Contains(ActorComponent))
+if (!ActorComponent->IsRegistered() && ActorComponent->bAutoRegister && IsValid(ActorComponent) && !PreInstanceComponents.Contains(ActorComponent))
 				{
 					ActorComponent->RegisterComponent();
 				}
@@ -6025,7 +5919,7 @@ void SSCSRuntimeEditor::RemoveComponentNode(FSCSRuntimeEditorTreeNodePtrType InN
 	if (EditorMode == EComponentEditorMode::BlueprintSCS)
 	{
 		USCS_Node* SCS_Node = InNodePtr->GetSCSNode();
-		if(SCS_Node != NULL)
+		if(SCS_Node != nullptr)
 		{
 			// Clear selection if current
 			if (SCSTreeWidget->GetSelectedItems().Contains(InNodePtr))
@@ -6128,7 +6022,7 @@ bool SSCSRuntimeEditor::IsNodeInSimpleConstructionScript( USCS_Node* Node ) cons
 	check(Node);
 
 	USimpleConstructionScript* NodeSCS = Node->GetSCS();
-	if(NodeSCS != NULL)
+	if(NodeSCS != nullptr)
 	{
 		return NodeSCS->GetAllNodes().Contains(Node);
 	}
@@ -6217,8 +6111,8 @@ FSCSRuntimeEditorTreeNodePtrType SSCSRuntimeEditor::AddTreeNode(USCS_Node* InSCS
 
 FSCSRuntimeEditorTreeNodePtrType SSCSRuntimeEditor::AddTreeNodeFromComponent(UActorComponent* InActorComponent, FSCSRuntimeEditorTreeNodePtrType InParentTreeNode)
 {
-	check(InActorComponent != NULL);
-	ensure(!InActorComponent->IsPendingKill());
+	check(InActorComponent != nullptr);
+	ensure(IsValid(InActorComponent));
 
 	FSCSRuntimeEditorTreeNodePtrType NewNodePtr = InParentTreeNode->FindChild(InActorComponent);
 	if (!NewNodePtr.IsValid())
@@ -6236,7 +6130,7 @@ FSCSRuntimeEditorTreeNodePtrType SSCSRuntimeEditor::AddTreeNodeFromComponent(UAc
 FSCSRuntimeEditorTreeNodePtrType SSCSRuntimeEditor::FindTreeNode(const USCS_Node* InSCSNode, FSCSRuntimeEditorTreeNodePtrType InStartNodePtr) const
 {
 	FSCSRuntimeEditorTreeNodePtrType NodePtr;
-	if(InSCSNode != NULL)
+	if(InSCSNode != nullptr)
 	{
 		// Start at the scene root node if none was given
 		if(!InStartNodePtr.IsValid())
@@ -6272,7 +6166,7 @@ FSCSRuntimeEditorTreeNodePtrType SSCSRuntimeEditor::FindTreeNode(const USCS_Node
 FSCSRuntimeEditorTreeNodePtrType SSCSRuntimeEditor::FindTreeNode(const UActorComponent* InComponent, FSCSRuntimeEditorTreeNodePtrType InStartNodePtr) const
 {
 	FSCSRuntimeEditorTreeNodePtrType NodePtr;
-	if(InComponent != NULL)
+	if(InComponent != nullptr)
 	{
 		// Start at the scene root node if none was given
 		if(!InStartNodePtr.IsValid())
@@ -6506,10 +6400,10 @@ FText SSCSRuntimeEditor::OnGetResetToBlueprintDefaultsTooltip() const
 
 	AActor* Actor = GetActorContext();
 	UBlueprint* Blueprint = (Actor != nullptr) ? Cast<UBlueprint>(Actor->GetClass()->ClassGeneratedBy) : nullptr;
-	if(Actor != NULL && Blueprint != NULL && Actor->GetClass()->ClassGeneratedBy == Blueprint)
+	if(Actor != nullptr && Blueprint != nullptr && Actor->GetClass()->ClassGeneratedBy == Blueprint)
 	{
 		AActor* BlueprintCDO = Actor->GetClass()->GetDefaultObject<AActor>();
-		if(BlueprintCDO != NULL)
+		if(BlueprintCDO != nullptr)
 		{
 			const EditorUtilities::ECopyOptions::Type CopyOptions = (EditorUtilities::ECopyOptions::Type)(EditorUtilities::ECopyOptions::PreviewOnly|EditorUtilities::ECopyOptions::OnlyCopyEditOrInterpProperties);
 			NumChangedProperties += EditorUtilities::CopyActorProperties(BlueprintCDO, Actor, CopyOptions);
@@ -6656,7 +6550,7 @@ void SSCSRuntimeEditor::OnApplyChangesToBlueprint() const
 	//		// Perform the actual copy
 	//		{
 	//			AActor* BlueprintCDO = Actor->GetClass()->GetDefaultObject<AActor>();
-	//			if (BlueprintCDO != NULL)
+	//			if (BlueprintCDO != nullptr)
 	//			{
 	//				const EditorUtilities::ECopyOptions::Type CopyOptions = (EditorUtilities::ECopyOptions::Type)(EditorUtilities::ECopyOptions::OnlyCopyEditOrInterpProperties | EditorUtilities::ECopyOptions::PropagateChangesToArchetypeInstances | EditorUtilities::ECopyOptions::SkipInstanceOnlyProperties);
 	//				NumChangedProperties = EditorUtilities::CopyActorProperties(Actor, BlueprintCDO, CopyOptions);
@@ -6727,13 +6621,13 @@ void SSCSRuntimeEditor::OnResetToBlueprintDefaults() const
 	AActor* Actor = GetActorContext();
 	UBlueprint* Blueprint = (Actor != nullptr) ? Cast<UBlueprint>(Actor->GetClass()->ClassGeneratedBy) : nullptr;
 
-	if ((Actor != NULL) && (Blueprint != NULL) && (Actor->GetClass()->ClassGeneratedBy == Blueprint))
+	if ((Actor != nullptr) && (Blueprint != nullptr) && (Actor->GetClass()->ClassGeneratedBy == Blueprint))
 	{
 		const FScopedTransaction Transaction(LOCTEXT("ResetToBlueprintDefaults_Transaction", "Reset to Class Defaults"));
 
 		{
-			AActor* BlueprintCDO = Actor->GetClass()->GetDefaultObject<AActor>();
-			if (BlueprintCDO != NULL)
+		AActor* BlueprintCDO = Actor->GetClass()->GetDefaultObject<AActor>();
+			if (BlueprintCDO != nullptr)
 			{
 				const EditorUtilities::ECopyOptions::Type CopyOptions = (EditorUtilities::ECopyOptions::Type)(EditorUtilities::ECopyOptions::OnlyCopyEditOrInterpProperties | EditorUtilities::ECopyOptions::CallPostEditChangeProperty);
 				NumChangedProperties = EditorUtilities::CopyActorProperties(BlueprintCDO, Actor, CopyOptions);

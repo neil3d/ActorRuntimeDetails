@@ -7,7 +7,7 @@
 #include "Framework/MultiBox/MultiBoxBuilder.h"
 
 #include "LevelEditor.h"
-#include "EditorStyle.h"
+#include "Styling/AppStyle.h"
 #include "WorkspaceMenuStructureModule.h"
 #include "WorkspaceMenuStructure.h"
 #include "IDocumentation.h"
@@ -15,12 +15,8 @@
 #include "SActorRuntimeDetails.h"
 #include "Engine/Selection.h"
 
-#if UE_4_24_OR_LATER
 #include "Widgets/SWidget.h"
 #include "Widgets/Docking/SDockTab.h"
-#else
-#include "Widgets/Docking/SDockTab.h"
-#endif
 
 static const FName ActorRuntimeDetailsTabName("ActorRuntimeDetails");
 
@@ -84,7 +80,7 @@ void FActorRuntimeDetailsModule::RegisterTabSpawner()
 	if (LevelEditorTabManager)
 	{
 		const FText DetailsTooltip = NSLOCTEXT("LevelEditorTabs", "LevelEditorSelectionDetailsTooltip", "Open a Runtime Details tab. Use this to view and edit properties of the selected object(s).");
-		const FSlateIcon DetailsIcon(FEditorStyle::GetStyleSetName(), "LevelEditor.Tabs.Details");
+const FSlateIcon DetailsIcon(FAppStyle::GetAppStyleSetName(), "LevelEditor.Tabs.Details");
 
 		LevelEditorTabManager->RegisterTabSpawner("LevelEditorRuntimeSelectionDetails", FOnSpawnTab::CreateRaw(this, &FActorRuntimeDetailsModule::SpawnActorRuntimeDetailsTab))
 			.SetDisplayName(NSLOCTEXT("LevelEditorTabs", "LevelEditorRuntimeSelectionDetails", "Runtime Details 1"))
@@ -119,7 +115,7 @@ TSharedRef<SWidget> FActorRuntimeDetailsModule::CreateActorRuntimeDetails(const 
 			AActor* Actor = static_cast<AActor*>(*It);
 			checkSlow(Actor->IsA(AActor::StaticClass()));
 
-			if (!Actor->IsPendingKill())
+if (IsValid(Actor))
 			{
 				SelectedActors.Add(Actor);
 			}
@@ -140,7 +136,6 @@ TSharedRef<SDockTab> FActorRuntimeDetailsModule::SpawnActorRuntimeDetailsTab(con
 	const FText Label = NSLOCTEXT("LevelEditor", "RuntimeDetailsTabTitle", "Runtime Details 1");
 
 	TSharedRef<SDockTab> DocTab = SNew(SDockTab)
-		.Icon(FEditorStyle::GetBrush("LevelEditor.Tabs.Details"))
 		.Label(Label)
 		.ToolTip(IDocumentation::Get()->CreateToolTip(Label, nullptr, "Shared/LevelEditor", "DetailsTab"))
 		[
@@ -150,6 +145,8 @@ TSharedRef<SDockTab> FActorRuntimeDetailsModule::SpawnActorRuntimeDetailsTab(con
 				ActorRuntimeDetails
 			]
 		];
+
+	DocTab->SetTabIcon(FAppStyle::GetBrush("LevelEditor.Tabs.Details"));
 
 	return DocTab;
 }

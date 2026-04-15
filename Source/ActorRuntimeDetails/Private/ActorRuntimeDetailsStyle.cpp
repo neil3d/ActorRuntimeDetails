@@ -7,7 +7,7 @@
 #include "Slate/SlateGameResources.h"
 #include "Interfaces/IPluginManager.h"
 
-TSharedPtr< FSlateStyleSet > FActorRuntimeDetailsStyle::StyleInstance = NULL;
+TSharedPtr< FSlateStyleSet > FActorRuntimeDetailsStyle::StyleInstance = nullptr;
 
 void FActorRuntimeDetailsStyle::Initialize()
 {

@@ -6,7 +6,7 @@
 
 void FActorRuntimeDetailsCommands::RegisterCommands()
 {
-	UI_COMMAND(PluginAction, "ActorRuntimeDetails", "Execute ActorRuntimeDetails action", EUserInterfaceActionType::Button, FInputGesture());
+	UI_COMMAND(PluginAction, "ActorRuntimeDetails", "Execute ActorRuntimeDetails action", EUserInterfaceActionType::Button, FInputChord());
 }
 
 #undef LOCTEXT_NAMESPACE

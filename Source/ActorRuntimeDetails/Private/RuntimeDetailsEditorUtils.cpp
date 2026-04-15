@@ -34,7 +34,7 @@ int32 FRuntimeDetailsEditorUtils::DeleteComponents(const TArray<UActorComponent*
 						ParentComponent->GetChildrenComponents(false, Siblings);
 						for (int32 i = 0; i < Siblings.Num() && ComponentToDelete != Siblings[i]; ++i)
 						{
-							if (Siblings[i] && !Siblings[i]->IsPendingKill())
+							if (IsValid(Siblings[i]))
 							{
 								OutComponentToSelect = Siblings[i];
 							}
@@ -110,110 +110,62 @@ bool FRuntimeDetailsEditorUtils::IsComponentNameAvailable(const FString& InStrin
 
 FVector& FRuntimeDetailsEditorUtils::GetRelativeLocation_DirectMutable(USceneComponent* SceneComponent)
 {
-#if UE_4_24_OR_LATER
 	return SceneComponent->GetRelativeLocation_DirectMutable();
-#else
-	return SceneComponent->RelativeLocation;
-#endif
 }
 
 FVector FRuntimeDetailsEditorUtils::GetRelativeLocation(USceneComponent* SceneComponent)
 {
-#if UE_4_24_OR_LATER
 	return SceneComponent->GetRelativeLocation();
-#else
-	return SceneComponent->RelativeLocation;
-#endif
 }
 
 void FRuntimeDetailsEditorUtils::SetRelativeLocation(USceneComponent* SceneComponent, FVector RelativeLocation)
 {
-#if UE_4_24_OR_LATER
 	SceneComponent->SetRelativeLocation(RelativeLocation);
-#else
-	SceneComponent->RelativeLocation = RelativeLocation;
-#endif
 }
 
 FRotator&  FRuntimeDetailsEditorUtils::GetRelativeRotation_DirectMutable(USceneComponent* SceneComponent)
 {
-#if UE_4_24_OR_LATER
 	return SceneComponent->GetRelativeRotation_DirectMutable();
-#else
-	return SceneComponent->RelativeRotation;
-#endif
 }
 
 FRotator FRuntimeDetailsEditorUtils::GetRelativeRotation(USceneComponent* SceneComponent)
 {
-#if UE_4_24_OR_LATER
 	return SceneComponent->GetRelativeRotation();
-#else
-	return SceneComponent->RelativeRotation;
-#endif
 }
 
 void FRuntimeDetailsEditorUtils::SetRelativeRotation(USceneComponent* SceneComponent, FRotator RelativeRotation)
 {
-#if UE_4_24_OR_LATER
 	SceneComponent->SetRelativeRotation(RelativeRotation);
-#else
-	SceneComponent->RelativeRotation = RelativeRotation;
-#endif
 }
 
 FVector& FRuntimeDetailsEditorUtils::GetRelativeScale3D_DirectMutable(USceneComponent* SceneComponent)
 {
-#if UE_4_24_OR_LATER
 	return SceneComponent->GetRelativeScale3D_DirectMutable();
-#else
-	return SceneComponent->RelativeScale3D;
-#endif
 }
 
 FVector FRuntimeDetailsEditorUtils::GetRelativeScale3D(USceneComponent* SceneComponent)
 {
-#if UE_4_24_OR_LATER
 	return SceneComponent->GetRelativeScale3D();
-#else
-	return SceneComponent->RelativeScale3D;
-#endif
 }
 
 void FRuntimeDetailsEditorUtils::SetRelativeScale3D(USceneComponent* SceneComponent, FVector RelativeScale3D)
 {
-#if UE_4_24_OR_LATER
 	SceneComponent->SetRelativeScale3D(RelativeScale3D);
-#else
-	SceneComponent->RelativeScale3D = RelativeScale3D;
-#endif
 }
 
 bool FRuntimeDetailsEditorUtils::IsUsingAbsoluteLocation(USceneComponent* SceneComponent)
 {
-#if UE_4_24_OR_LATER
 	return SceneComponent->IsUsingAbsoluteLocation();
-#else
-	return SceneComponent->bAbsoluteLocation;
-#endif
 }
 
 bool FRuntimeDetailsEditorUtils::IsUsingAbsoluteRotation(USceneComponent* SceneComponent)
 {
-#if UE_4_24_OR_LATER
 	return SceneComponent->IsUsingAbsoluteRotation();
-#else
-	return SceneComponent->bAbsoluteRotation;
-#endif
 }
 
 bool FRuntimeDetailsEditorUtils::IsUsingAbsoluteScale(USceneComponent* SceneComponent)
 {
-#if UE_4_24_OR_LATER
 	return SceneComponent->IsUsingAbsoluteScale();
-#else
-	return SceneComponent->bAbsoluteScale;
-#endif
 }
 
 #undef LOCTEXT_NAMESPACE
